@@ -3,12 +3,9 @@ import { StatusBar } from 'expo-status-bar';
 import { Keyboard, KeyboardAvoidingView, StyleSheet, Text, View, TextInput, TouchableOpacity } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import TaskDetails from './components/TaskList.js';
-import TodoList from './components/Home.js';
+import Task from './Task.js';
 
-const Stack = createNativeStackNavigator();
-
-export default function App() {
+const TodoList = ({ navigation }) => {
   const [task, setTask] = useState();
   const [taskItems, setTaskItems] = useState([]);
   
@@ -25,15 +22,36 @@ export default function App() {
   }
 
   return (
-    <NavigationContainer>
-      <Stack.Navigator>
-        <Stack.Screen
-          name="Home"
-          component={TodoList}
-          style={styles.sectionTitle}/>
-        <Stack.Screen name="Task" component={TaskDetails} />
-      </Stack.Navigator>
-    </NavigationContainer>
+    <View style={styles.container}>
+      {/* Today's Tasks */}
+      <View style={styles.taskWrapper}>
+        <Text style={styles.sectionTitle}>Today's Tasks</Text>
+
+        <View style={styles.items}>
+          {/* Where all tasks will go */}
+          {
+            taskItems.map((item, index) => {
+              return(
+                <TouchableOpacity key={index} onPress={() => navigation.navigate('Task', { task: item }) }>
+                  <Task text={item} />
+                </TouchableOpacity>
+              )
+            })
+          }
+        </View>
+      </View>
+      {/* Write a task */}
+      <KeyboardAvoidingView
+        behaviour = {Platform.OS== "ios"?"padding":"height"}
+        style = {styles.writeTaskWrapper}>
+        <TextInput style={styles.input} placeholder={'Create a task'} value={task}  onChangeText={text => setTask(text)} />
+        <TouchableOpacity onPress={() => handleAddTask()}>
+          <View style={styles.addWrapper}>
+            <Text style={styles.addText}>+</Text>
+          </View>
+        </TouchableOpacity>
+      </KeyboardAvoidingView>
+    </View>
   );
 }
 
@@ -43,7 +61,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#32344A',
   },
   taskWrapper: {
-    paddingTop: 80,
+    paddingTop: 20,
     paddingHorizontal: 20,
 
   },
@@ -85,3 +103,5 @@ const styles = StyleSheet.create({
   },
   addText: {},
 });
+
+export default TodoList;
